@@ -8,20 +8,31 @@ else
 echo "Отмена"
 exit
 fi
-
 namepuppet=$(whiptail --title "Введите адрес сервера Puppet" --inputbox "Введите имя сервера Puppet" 10 60 ServerName 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = 0 ]; then
-
 if [ `lsb_release -r | sed 's/.\+:\s\+//'` = "12.04" ]; then
+(
 wget -q apt.puppetlabs.com/puppetlabs-release-pc1-precise.deb
-dpkg -i puppetlabs-release-pc1-precise.deb
+dpkg -i puppetlabs-release-pc1-precise.deb > /dev/null
 rm puppetlabs-release-pc1-precise.deb
-apt-get install -y puppet
-sleep 10
+apt-get install -y puppet > .log.log
+#########################################################################
+progress="30"
+while (true)
+do
+proc=$(ps aux | grep -v grep | grep -e "apt-get")
+if [ "$proc" = "" ]; then break; fi
+sleep 1
+progress=$(expr $progress + 2)
+done;
+########################################################################
+sleep 2
 sed -i s/START=no/START=yes/g /etc/default/puppet
 sed -i "/\/var\/log\/puppet/a \server=$namepuppet" /etc/puppet/puppet.conf
 puppet agent --test
+) | whiptail --title "Установка Puppet клиента" --gauge "Пожалуйста подождите, роняем цены на нефть" 7 70 1
+rm .log.log
 else
 (
 wget -q apt.puppetlabs.com/puppetlabs-release-trusty.deb
@@ -42,22 +53,20 @@ sleep 1
 progress=$(expr $progress + 2)
 done;
 ##########################################################################
+sleep 2
 rm .log.log
-#clear
 sed -i s/START=no/START=yes/g /etc/default/puppet
 sed -i "/\/var\/log\/puppet/a \server=$namepuppet" /etc/puppet/puppet.conf
 sed -i 's/templatedir/#templatedir/' /etc/puppet/puppet.conf
 echo 100
 puppet agent --test
 ) | whiptail --title "Установка Puppet клиента" --gauge "Пожалуйста подождите, роняем цены на нефть" 7 70 1
-
 fi
-
 else
 echo "Выход"
 exit
 fi
-
 else
 echo "Отмена запуска"
 fi
+echo "111"
