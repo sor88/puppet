@@ -69,4 +69,3 @@ fi
 else
 echo "Отмена запуска"
 fi
-echo "111"
