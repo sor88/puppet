@@ -11,7 +11,7 @@ f1(){
 				done;
 
 }
-installp(){
+installp12(){
 (
                                 wget -q apt.puppetlabs.com/puppetlabs-release-pc1-$version.deb
                                 echo 5
@@ -27,10 +27,31 @@ installp(){
                                 sleep 10
 				puppet agent --enable
 				puppet agent --test
-                                ) | whiptail --title "Установка Puppet клиента" --gauge "Пожалуйста подождите, роняем цены на нефть" 7 70 1
+                                ) | whiptail --title "Установка Puppet клиента" --gauge "Пожалуйста подождите! В сбербанке очередь." 7 70 1
                                 rm .log.log
                                 exit
 }
+installp(){
+(
+                                wget -q apt.puppetlabs.com/puppetlabs-release-pc1-$version.deb
+                                echo 5
+                                dpkg -i puppetlabs-release-pc1-$version.deb > /dev/null
+                                echo 10
+                                rm puppetlabs-release-pc1-$version.deb
+                                echo 15
+                                apt-get install -y puppet > .log.log
+                                f1
+                                sleep 2
+#                                sed -i s/START=no/START=yes/g /etc/default/puppet
+                                sed -i "/\/var\/log\/puppet/a \server=$namepuppet" /etc/puppet/puppet.conf
+                                sleep 10
+                                puppet agent --enable
+                                puppet agent --test
+                                ) | whiptail --title "Установка Puppet клиента" --gauge "Пожалуйста подождите! В сбербанке очередь." 7 70 1
+                                rm .log.log
+                                exit
+}
+
 installp2(){
 (
                                 wget -q apt.puppetlabs.com/puppetlabs-release-$version.deb
@@ -46,7 +67,7 @@ installp2(){
 				sleep 10
 				puppet agent --enable
 				puppet agent --test
-                                ) | whiptail --title "Установка Puppet клиента" --gauge "Пожалуйста подождите, роняем цены на нефть" 7 70 1
+                                ) | whiptail --title "Установка Puppet клиента" --gauge "Пожалуйста подождите! В сбербанке очередь." 7 70 1
                                 rm .log.log
                                 exit
 }
@@ -65,7 +86,7 @@ exitstatus=$?
 testversion=$(lsb_release -r | sed 's/.\+:\s\+//');
 			case $testversion in
 			12.04)
-			installp
+			installp12
 			;;
 			14.04)
 			installp
