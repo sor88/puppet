@@ -8,7 +8,7 @@ class zabbix-client {
 class zabbix-client::zabconf {
 file { '/etc/zabbix/zabbix_agentd.conf':
   ensure  => file,
-  content => template('zabbix-client/zabbix.conf.erb'),
+  content => template("$module_name//zabbix.conf.erb"),
 }
 
 }
