@@ -71,6 +71,25 @@ installp2(){
                                 rm .log.log
                                 exit
 }
+installp3(){
+(
+                                wget -q apt.puppetlabs.com/puppet6-release-$version.deb
+                                echo 5
+                                dpkg -i puppet6-release-$version.deb > /dev/null
+                                echo 10
+                                rm puppet6-release-$version.deb
+                                echo 15
+                                apt-get install -y puppet > .log.log
+                                f1
+                                sleep 2
+                                sed -i "/\/var\/log\/puppet/a \server=$namepuppet" /etc/puppet/puppet.conf
+				sleep 10
+				puppet agent --enable
+				puppet agent --test
+                                ) | whiptail --title "Установка Puppet клиента" --gauge "Пожалуйста подождите! В сбербанке очередь." 7 70 1
+                                rm .log.log
+                                exit
+}
 if (whiptail --title "Подготовка рабочей станции " --yesno "Запуск сценария установки" 10 60  "введите имя ПК") then
 		namehost=$(whiptail --title "Установка HostName" --inputbox "Введите имя компьютера" 10 60 HostName 3>&1 1>&2 2>&3)
 		exitstatus=$?
@@ -93,6 +112,9 @@ testversion=$(lsb_release -r | sed 's/.\+:\s\+//');
 			;;
 			16.04)
 			installp
+			;;
+			18.04)
+			installp3
 			;;
 			8.*)
 			installp2
