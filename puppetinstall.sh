@@ -1,5 +1,6 @@
 #/bin/bash
 version=$(lsb_release -c | sed 's/.\+:\s\+//')
+
 f1(){
 				progress="30"
 				while (true)
@@ -90,6 +91,26 @@ installp3(){
                                 rm .log.log
                                 exit
 }
+installp4(){
+(
+                                wget -q apt.puppetlabs.com/puppetlabs-release-pc1-stretch.deb
+                                echo 5
+                                dpkg -i puppetlabs-release-pc1-stretch.deb > /dev/null
+                                echo 10
+                                rm puppet6-release-$version.deb
+                                echo 15
+                                apt-get install -y puppet > .log.log
+                                f1
+                                sleep 2
+                                sed -i "/\/var\/log\/puppet/a \server=$namepuppet" /etc/puppet/puppet.conf
+                                sleep 10
+                                puppet agent --enable
+                                puppet agent --test
+                                ) | whiptail --title "Установка Puppet клиента" --gauge "Пожалуйста подождите! В сбербанке очередь." 7 70 1
+                                rm .log.log
+                                exit
+}
+
 if (whiptail --title "Подготовка рабочей станции " --yesno "Запуск сценария установки" 10 60  "введите имя ПК") then
 		namehost=$(whiptail --title "Установка HostName" --inputbox "Введите имя компьютера" 10 60 HostName 3>&1 1>&2 2>&3)
 		exitstatus=$?
@@ -121,6 +142,9 @@ testversion=$(lsb_release -r | sed 's/.\+:\s\+//');
 			;;
 			7.*)
 			installp2
+			;;
+			orel)
+			installp4
 			;;
 			testing)
 			version=$(lsb_release -r | sed 's/.\+:\s\+//')
